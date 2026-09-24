@@ -29,6 +29,12 @@ jobs:
       - name: Run reference and contract tests
         run: python -m unittest discover -s tests -p "test_*.py"
 
+      - name: Run Case 001 fixture tests
+        run: |
+          python -m unittest discover \
+            -s examples/canonical-001-completion-timeout/fixture/tests \
+            -p "test_*.py"
+
       - name: Parse JSON schemas
         run: |
           python - <<'PY'
