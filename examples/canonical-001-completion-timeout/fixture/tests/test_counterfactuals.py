@@ -66,7 +66,7 @@ class CounterfactualTests(unittest.TestCase):
         fixed.advance(91)
         self.assertEqual(fixed.scheduler.status("target"), "COMPLETED")
 
-    def test_cf3_pool_cardinality_does_not_change_mechanism(self):
+    def test_cf3_pool_cardinality_produces_sparse_stale_channel_failures(self):
         buggy = FixtureSystem(
             FixtureConfig(
                 reconciliation_interval=10_000,
@@ -76,11 +76,15 @@ class CounterfactualTests(unittest.TestCase):
         prime_channels(buggy, 3)
         buggy.rotate_token()
 
-        for index in range(3):
-            job_id = f"stale-{index}"
+        buggy_statuses = []
+        for index in range(6):
+            job_id = f"mixed-{index}"
             buggy.submit_and_run(job_id)
             buggy.advance(46)
-            self.assertEqual(buggy.scheduler.status(job_id), "TIMED_OUT")
+            buggy_statuses.append(buggy.scheduler.status(job_id))
+
+        self.assertEqual(buggy_statuses.count("TIMED_OUT"), 3)
+        self.assertEqual(buggy_statuses.count("COMPLETED"), 3)
 
         fixed = FixtureSystem(
             FixtureConfig(
@@ -92,11 +96,14 @@ class CounterfactualTests(unittest.TestCase):
         prime_channels(fixed, 3)
         fixed.rotate_token()
 
-        for index in range(3):
+        fixed_statuses = []
+        for index in range(6):
             job_id = f"fresh-{index}"
             fixed.submit_and_run(job_id)
             fixed.advance(46)
-            self.assertEqual(fixed.scheduler.status(job_id), "COMPLETED")
+            fixed_statuses.append(fixed.scheduler.status(job_id))
+
+        self.assertEqual(fixed_statuses, ["COMPLETED"] * 6)
 
 
 if __name__ == "__main__":
