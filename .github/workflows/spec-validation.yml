@@ -41,6 +41,36 @@ jobs:
             -s examples/canonical-001-completion-timeout/private/tests \
             -p "test_*.py"
 
+      - name: Generate and validate Case 001 evidence bundle
+        run: |
+          python examples/canonical-001-completion-timeout/fixture/generate_evidence.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("examples/canonical-001-completion-timeout/fixture/generated")
+          metrics = json.loads((root / "metrics.json").read_text())
+          traces = json.loads((root / "traces.json").read_text())
+          logs = [json.loads(line) for line in (root / "logs.jsonl").read_text().splitlines() if line.strip()]
+
+          assert metrics["job_status"]["incident-8f2a"] == "TIMED_OUT"
+          assert metrics["completion_rejected_count"] >= 1
+          assert metrics["lease_expired_count"] >= 1
+          assert metrics["token_rotated_count"] >= 1
+
+          incident = traces["incident-8f2a"]
+          events = {item["event"] for item in incident}
+          assert "render_complete" in events
+          assert "commit_ok" in events
+          assert "ledger_commit_ok" in events
+          assert "completion_rejected" in events
+          assert "lease_expired" in events
+
+          services = {item["service"] for item in logs}
+          assert {"identity", "worker", "artifact", "billing", "completion_gateway", "scheduler"} <= services
+          print("Case 001 evidence bundle validated")
+          PY
+
       - name: Parse JSON schemas
         run: |
           python - <<'PY'
