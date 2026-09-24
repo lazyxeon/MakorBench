@@ -71,6 +71,34 @@ jobs:
           print("Case 001 evidence bundle validated")
           PY
 
+      - name: Build and inspect Case 001 blinded reviewer bundle
+        run: |
+          python examples/canonical-001-completion-timeout/reviewer/build_bundle.py /tmp/case001-reviewer
+          python - <<'PY'
+          from pathlib import Path
+
+          root = Path("/tmp/case001-reviewer")
+          required = [
+              root / "prompt.md",
+              root / "REVIEW-INSTRUCTIONS.md",
+              root / "review-response.md",
+              root / "fixture" / "makor_fixture" / "completion.py",
+              root / "fixture" / "tests" / "test_smoke.py",
+              root / "evidence" / "logs.jsonl",
+              root / "evidence" / "metrics.json",
+              root / "evidence" / "traces.json",
+          ]
+          for path in required:
+              assert path.exists(), path
+
+          forbidden = ("private", "oracle", "reference_solution", "counterfactual")
+          for path in root.rglob("*"):
+              rel = str(path.relative_to(root)).lower()
+              assert not any(token in rel for token in forbidden), rel
+
+          print("blinded reviewer bundle validated")
+          PY
+
       - name: Parse JSON schemas
         run: |
           python - <<'PY'
