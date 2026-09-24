@@ -1,7 +1,5 @@
 # MakorBench
 
-> **Working title.** Phase 0 reconnaissance found an existing public benchmark named RootCauseBench from Edge Delta. This repository name is therefore under review before the specification is finalized.
-
 Existing software-engineering benchmarks mostly ask whether a model can solve a known problem. This project asks whether the model can **discover what the problem actually is**.
 
 The proposed benchmark evaluates causal software diagnosis from an ambiguous downstream symptom:
