@@ -1,0 +1,19 @@
+{
+  "schema_version": "0.1",
+  "task_id": "makor-dev-001-completion-timeout",
+  "benchmark_version": "0.1-paper",
+  "prompt_path": "prompt.md",
+  "environment": {
+    "image_digest": "paper-case:not-executable",
+    "repository_commit": "paper-case-design-only",
+    "architecture": null,
+    "seed": 1701
+  },
+  "budget": {
+    "wall_time_seconds": 3600,
+    "max_turns": 250,
+    "max_tool_calls": 500
+  },
+  "network_policy": "isolated",
+  "track": "canonical"
+}
