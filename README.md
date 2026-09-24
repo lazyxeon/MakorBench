@@ -1,4 +1,4 @@
-# RootCauseBench
+# MakorBench
 
 > **Working title.** Phase 0 reconnaissance found an existing public benchmark named RootCauseBench from Edge Delta. This repository name is therefore under review before the specification is finalized.
 
