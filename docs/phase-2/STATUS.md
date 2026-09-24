@@ -93,11 +93,13 @@ Completed:
 - behavioral dry-run of the intended core mechanism;
 - behavioral dry-run of sparse 3-channel post-rotation failures.
 
-Pending:
+Completed:
 - exact repository test execution under GitHub Actions;
-- generated evidence bundle inspection from the committed code;
-- human diagnostic review;
-- reference repair execution against all committed verifier tests.
+- generated evidence-bundle structural validation;
+- reference repair execution against committed verifier/counterfactual tests.
+
+Pending:
+- blinded human diagnostic review and difficulty/leakage assessment.
 
 GitHub CI is wired and is now eligible to execute because the validation workflow has been integrated into `main`.
 
@@ -109,3 +111,8 @@ GitHub CI is wired and is now eligible to execute because the validation workflo
 4. perform blinded human review;
 5. tune Case 001 based on reviewer behavior;
 6. then decide whether to build additional cases or a minimal canonical harness adapter.
+
+
+## CI result
+
+Current Case 001 implementation head `6dcc0d0` passed GitHub Actions run `36020965099`, including public smoke tests, private verifier/counterfactual tests, evidence-bundle validation, and schema checks.
