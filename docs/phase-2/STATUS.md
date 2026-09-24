@@ -4,6 +4,12 @@
 **Working project name:** MakorBench  
 **Repository rename:** pending user action from RootCauseBench to MakorBench
 
+## Integration state
+
+The approved Phase 0 reconnaissance, Phase 1 task contract, and Phase 1 scoring/trajectory RFC have now been merged into `main`. External review gates remain open on Issues #2 and #3.
+
+The repository validation workflow is therefore now present on the default branch, allowing downstream Phase 2 pull requests to execute real CI.
+
 ## Approved foundations
 
 ### Phase 0
@@ -93,7 +99,7 @@ Pending:
 - human diagnostic review;
 - reference repair execution against all committed verifier tests.
 
-GitHub CI is wired but cannot execute on the downstream stacked PR until the workflow exists in the integrated base/default branch.
+GitHub CI is wired and is now eligible to execute because the validation workflow has been integrated into `main`.
 
 ## Next gates
 
