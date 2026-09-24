@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://makorbench.dev/schemas/verification.schema.json",
+  "title": "MakorBench Verification Artifact",
+  "type": "object",
+  "additionalProperties": false,
+  "required":["schema_version","experiments","original_symptom_retested","regressions_checked","causal_prediction","unresolved_risks"],
+  "properties":{
+    "schema_version":{"type":"string","const":"0.1"},
+    "experiments":{
+      "type":"array",
+      "items":{
+        "type":"object","additionalProperties":false,
+        "required":["description","result"],
+        "properties":{
+          "description":{"type":"string","minLength":1},
+          "result":{"type":"string","minLength":1}
+        }
+      }
+    },
+    "original_symptom_retested":{"type":"boolean"},
+    "regressions_checked":{"type":"array","items":{"type":"string"}},
+    "causal_prediction":{"type":"string","minLength":1},
+    "unresolved_risks":{"type":"array","items":{"type":"string"}}
+  }
+}
