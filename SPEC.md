@@ -120,9 +120,20 @@ The observed symptom is **not** the root-cause statement.
 
 ### 5.2 Root cause
 
-The defect, interaction, state transition, or causal mechanism whose removal prevents the target failure across the benchmark's valid counterfactual conditions.
+The minimal causally relevant defect, interaction, state transition, or set of conditions whose correction prevents the target failure across the benchmark's valid counterfactual conditions.
 
-A line of code is not necessarily a root cause. A valid diagnosis may require describing an interaction among components, configuration, state, ordering, workload, or timing.
+MakorBench does **not** assume that every failure has one privileged faulty line or one monocausal explanation. A valid case MAY require a causal set spanning code, configuration, state, ordering, workload, or timing.
+
+For grading and authoring, cases SHOULD distinguish causal roles when they materially differ:
+
+- **root cause** — the defect or minimal causally necessary mechanism targeted by the repair;
+- **trigger** — the event or input that activates the failure mechanism;
+- **precondition** — state that must already hold for the failure to occur;
+- **contributor** — a factor that increases likelihood or severity without being independently sufficient;
+- **amplifier** — a factor that magnifies the symptom or blast radius;
+- **manifestation** — the externally observed effect.
+
+A symptom-correlated component MUST NOT be treated as the root cause merely because modifying it suppresses the visible failure.
 
 ### 5.3 Causal chain
 
@@ -170,14 +181,23 @@ Every canonical MakorBench task MUST provide the agent with:
 Every canonical task MUST contain, hidden from the agent:
 
 1. an oracle root-cause description;
-2. an oracle causal chain;
+2. an oracle causal chain and material causal roles;
 3. one or more accepted reproduction strategies or equivalent causal evidence criteria;
-4. an oracle repair or repair equivalence criteria;
+4. one or more accepted intervention classes or rigorous repair-equivalence criteria;
 5. regression tests;
 6. counterfactual evaluation conditions;
 7. documented plausible alternative hypotheses;
 8. task-validity evidence from human review;
 9. shortcut and trivial-baseline checks.
+
+The machine-readable contracts for the v0.1 draft are defined in:
+
+- `schemas/task-manifest.schema.json` — agent-visible/public run manifest;
+- `schemas/oracle.schema.json` — private benchmark-maintainer oracle record;
+- `schemas/diagnosis.schema.json` — required final diagnosis artifact;
+- `schemas/verification.schema.json` — required final verification artifact.
+
+A conforming implementation MAY extend these schemas, but it MUST preserve the required fields and MUST version any incompatible extension.
 
 ---
 
@@ -199,9 +219,13 @@ It MUST NOT directly identify:
 
 ### 7.2 Diagnostic ambiguity
 
-A canonical task MUST admit at least **three defensible initial causal hypotheses** under blinded human review.
+A canonical task MUST preserve genuine ambiguity at the start of the investigation.
 
-These hypotheses MUST differ meaningfully in causal mechanism or responsible subsystem. Cosmetic variants of the same theory do not count.
+The hidden authoring record MUST document at least **three materially different hypothesis classes** that are reasonable from the initial symptom and shallow inspection. At least **two distinct alternatives to the oracle mechanism SHOULD also arise independently during blinded human validation**.
+
+This requirement exists to prevent authors from manufacturing three nominal hypotheses that no competent engineer would actually consider.
+
+Hypotheses MUST differ meaningfully in causal mechanism, state model, or responsible subsystem. Cosmetic variants of the same theory do not count.
 
 Example of acceptable diversity:
 
@@ -215,6 +239,8 @@ Example of unacceptable diversity:
 - off-by-one in function A;
 - off-by-one in function B;
 - off-by-one in function C.
+
+If the benchmark prompt or one shallow query collapses the case to a single obvious hypothesis, the case SHOULD be rejected or reworked.
 
 ### 7.3 Truthful ambiguity
 
@@ -351,7 +377,9 @@ At the end of a run, the agent MUST produce:
 
 ### 10.1 Diagnosis artifact
 
-The canonical schema is conceptually:
+The normative v0.1 artifact structure is defined by `schemas/diagnosis.schema.json`.
+
+The following is an illustrative shape:
 
 ```json
 {
@@ -387,7 +415,7 @@ The final machine-readable artifact does **not** replace trajectory capture. It 
 
 ### 10.2 Verification artifact
 
-The agent MUST report:
+The agent MUST emit an artifact conforming to `schemas/verification.schema.json` and report:
 
 - what tests or experiments it executed;
 - whether the original symptom was re-tested;
@@ -469,6 +497,10 @@ Counterfactual evaluation is a defining feature of MakorBench.
 Production-grade canonical tasks MUST include at least one hidden counterfactual variant. Mature tasks SHOULD include two or more.
 
 ### 13.2 Variant properties
+
+A counterfactual variant MUST preserve the oracle causal mechanism or causal set while changing conditions that are not supposed to be essential to the valid repair.
+
+The externally visible manifestation MAY change in timing, frequency, surface location, or intensity so long as the same underlying mechanism is exercised.
 
 A counterfactual variant SHOULD alter one or more incidental variables such as:
 
@@ -598,7 +630,11 @@ Each task MUST include a hidden case-authoring record documenting:
 
 ## 16. Human validation protocol
 
-Before inclusion in a stable release, a task SHOULD be reviewed by at least three technically qualified reviewers who did not author the case.
+Before inclusion in a stable release, a task MUST be reviewed by at least three technically qualified reviewers who did not author the case.
+
+At least two reviewers MUST independently reach an oracle-compatible causal diagnosis using only agent-visible evidence and tools, unless the case is explicitly designated as an abstention/insufficient-evidence case.
+
+A task SHOULD be rejected or revised when reviewer disagreement reveals that the oracle is underdetermined rather than merely difficult.
 
 Reviewers SHOULD independently record:
 
@@ -660,6 +696,27 @@ A canonical run SHOULD follow this lifecycle:
 14. destroy or reset the environment.
 
 Runs that fail because of benchmark infrastructure SHOULD be retried under the release's documented retry policy rather than silently counted as model failures.
+
+### 18.1 Environment provenance
+
+Every stable canonical task MUST pin enough environment state to reproduce the evaluation boundary. At minimum this SHOULD include:
+
+- repository commit or equivalent source snapshot identifier;
+- container or VM image digest;
+- architecture when behavior may be architecture-sensitive;
+- dependency lock state;
+- task seed when randomness is used;
+- service/configuration snapshot identifiers;
+- harness version;
+- grader version.
+
+Mutable image tags or unpinned dependency resolution MUST NOT be the sole provenance mechanism for stable leaderboard releases.
+
+### 18.2 Randomness
+
+When a task depends on stochastic timing, concurrency, scheduling, randomized identifiers, or generated load, the release MUST document the seed policy and expected failure-rate envelope.
+
+A task whose outcome is too unstable to distinguish agent quality from environment noise MUST NOT enter the stable canonical set.
 
 ---
 
