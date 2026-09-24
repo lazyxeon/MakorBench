@@ -1,0 +1,112 @@
+{
+  "schema_version": "0.1",
+  "task_id": "makor-dev-001-completion-timeout",
+  "causal_mechanism": "Long-lived completion channels capture authentication metadata at channel construction; token rotation updates the token manager but leaves active channel metadata stale, causing post-rotation completion RPCs to be rejected.",
+  "causal_roles": [
+    {
+      "role": "root_cause",
+      "description": "Completion channel/interceptor snapshots token state instead of resolving current credentials for each RPC.",
+      "location": "services/worker/completion_client.py"
+    },
+    {
+      "role": "trigger",
+      "description": "Service token rotates while a completion channel remains active.",
+      "location": "services/worker/token_manager.py"
+    },
+    {
+      "role": "precondition",
+      "description": "A channel created before rotation survives and is reused afterward.",
+      "location": "services/worker/channel_pool.py"
+    },
+    {
+      "role": "contributor",
+      "description": "Authentication rejection is not retried through freshly authenticated metadata/channel.",
+      "location": "libs/rpc/retry_policy.py"
+    },
+    {
+      "role": "amplifier",
+      "description": "Scheduler lease can expire before artifact reconciliation repairs scheduler state.",
+      "location": "services/scheduler/reconciler.py"
+    },
+    {
+      "role": "manifestation",
+      "description": "Completed job is shown as TIMED_OUT because scheduler never receives the completion transition.",
+      "location": "services/scheduler/lease_manager.py"
+    }
+  ],
+  "causal_chain": [
+    "Token manager rotates to a new valid service credential.",
+    "An already-active completion channel retains authentication metadata captured before rotation.",
+    "A completed job publishes its completion event through that stale channel.",
+    "Completion gateway rejects the RPC authentication.",
+    "Artifact and billing side effects remain committed because they occurred before completion publishing.",
+    "Scheduler receives no normal completion transition.",
+    "The job lease expires before or without reconciliation.",
+    "The job is reported as TIMED_OUT despite successful work."
+  ],
+  "accepted_reproduction": [
+    "Keep a completion channel alive across forced token rotation, then show that post-rotation completion publish fails while a newly created channel succeeds.",
+    "Equivalent instrumentation proving that failed completion requests carry credential state older than TokenManager.current_token."
+  ],
+  "accepted_interventions": [
+    "Resolve current token per completion RPC rather than snapshotting at channel construction.",
+    "Atomically invalidate/rebuild active completion channels when token rotation occurs, preserving concurrency safety and idempotency.",
+    "Retry authentication-rejected completion once through guaranteed-fresh credentials if all security/idempotency invariants remain satisfied."
+  ],
+  "plausible_alternatives": [
+    "Scheduler lease or clock-skew defect.",
+    "Queue acknowledgement / duplicate-delivery race.",
+    "Database visibility or transaction-ordering issue.",
+    "Generic completion-network transport failure.",
+    "Reconciliation lag/backpressure."
+  ],
+  "counterfactual_variants": [
+    "CF-1 rotation jitter and randomized IDs.",
+    "CF-2 reconciliation delayed beyond lease timeout.",
+    "CF-3 altered concurrency/channel-pool size with a live pre-rotation channel.",
+    "CF-4 unrelated transient gateway latency/failures."
+  ],
+  "provenance": {
+    "type": "synthetic-composite",
+    "status": "paper-canonical",
+    "public_worked_case": true,
+    "contamination_risk": "high for exact public case; hidden descendants must be transformed"
+  },
+  "human_validation": {
+    "status": "pending",
+    "required_reviewers": 3,
+    "required_oracle_compatible_diagnoses": 2
+  },
+  "known_shortcuts": [
+    "Increasing scheduler timeout can reduce visible incidents but does not repair completion authentication.",
+    "Restarting workers rebuilds channels and temporarily suppresses the symptom.",
+    "Blanket retry can mask delivery failure while introducing duplicate/resource risks."
+  ],
+  "causal_claim_units": [
+    {
+      "id": "C1",
+      "weight": 0.3,
+      "claim": "Long-lived completion channel/interceptor snapshots credential state at construction."
+    },
+    {
+      "id": "C2",
+      "weight": 0.2,
+      "claim": "Token rotation updates the token manager without updating already-active channel authentication metadata."
+    },
+    {
+      "id": "C3",
+      "weight": 0.2,
+      "claim": "A post-rotation completion RPC can fail authentication after artifact and billing side effects have already committed."
+    },
+    {
+      "id": "C4",
+      "weight": 0.15,
+      "claim": "Missing completion transition leads to scheduler lease expiry and the timeout manifestation."
+    },
+    {
+      "id": "C5",
+      "weight": 0.15,
+      "claim": "Restart or channel recreation temporarily restores correct authentication state."
+    }
+  ]
+}
