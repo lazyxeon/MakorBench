@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://makorbench.dev/schemas/score-report.schema.json",
+  "title": "MakorBench Score Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version","task_id","run_id","makor_score","components","outcomes","ceilings","efficiency"],
+  "properties": {
+    "schema_version": {"type":"string","const":"0.1"},
+    "task_id": {"type":"string","minLength":1},
+    "run_id": {"type":"string","minLength":1},
+    "makor_score": {"type":"number","minimum":0,"maximum":100},
+    "components": {
+      "type":"object","additionalProperties":false,
+      "required":["diagnosis","investigation","intervention","verification_judgment"],
+      "properties":{
+        "diagnosis":{"type":"number","minimum":0,"maximum":35},
+        "investigation":{"type":"number","minimum":0,"maximum":25},
+        "intervention":{"type":"number","minimum":0,"maximum":30},
+        "verification_judgment":{"type":"number","minimum":0,"maximum":10}
+      }
+    },
+    "subscores": {"type":"object"},
+    "outcomes": {
+      "type":"object","additionalProperties":false,
+      "required":["functional_resolution","counterfactual_resolution_rate","regression_preservation_rate"],
+      "properties":{
+        "functional_resolution":{"type":"boolean"},
+        "counterfactual_resolution_rate":{"type":"number","minimum":0,"maximum":1},
+        "regression_preservation_rate":{"type":"number","minimum":0,"maximum":1}
+      }
+    },
+    "ceilings": {
+      "type":"array",
+      "items":{
+        "type":"object","additionalProperties":false,
+        "required":["rule","applied"],
+        "properties":{
+          "rule":{"type":"string"},
+          "applied":{"type":"boolean"},
+          "cap":{"type":["number","null"],"minimum":0,"maximum":100},
+          "reason":{"type":["string","null"]}
+        }
+      }
+    },
+    "efficiency": {
+      "type":"object",
+      "properties":{
+        "wall_time_seconds":{"type":["number","null"],"minimum":0},
+        "input_tokens":{"type":["integer","null"],"minimum":0},
+        "output_tokens":{"type":["integer","null"],"minimum":0},
+        "reasoning_tokens":{"type":["integer","null"],"minimum":0},
+        "tool_calls":{"type":["integer","null"],"minimum":0},
+        "experiments":{"type":["integer","null"],"minimum":0},
+        "estimated_cost_usd":{"type":["number","null"],"minimum":0}
+      },
+      "additionalProperties": true
+    },
+    "grader_versions":{"type":"object"},
+    "notes":{"type":"array","items":{"type":"string"}}
+  }
+}
