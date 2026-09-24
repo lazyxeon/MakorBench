@@ -54,7 +54,7 @@ The benchmark SHOULD be designed such that aggressive optimization against it im
 
 ## 3. Normative language
 
-The key words **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHALL NOT**, **SHOULD**, **SHOULD NOT**, **RECOMMENDED**, **MAY**, and **OPTIONAL** are to be interpreted as normative requirements.
+The key words **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHALL NOT**, **SHOULD**, **SHOULD NOT**, **RECOMMENDED**, **MAY**, and **OPTIONAL** are to be interpreted as described by BCP 14 (RFC 2119 as updated by RFC 8174) when, and only when, they appear in all capitals.
 
 A task that violates a MUST-level case requirement is not a valid canonical MakorBench task.
 
@@ -198,6 +198,8 @@ The machine-readable contracts for the v0.1 draft are defined in:
 - `schemas/verification.schema.json` — required final verification artifact.
 
 A conforming implementation MAY extend these schemas, but it MUST preserve the required fields and MUST version any incompatible extension.
+
+The normative visibility and packaging boundary is further defined in `docs/phase-1/TASK-BUNDLE.md`. Machine-readable contracts use JSON Schema Draft 2020-12.
 
 ---
 
