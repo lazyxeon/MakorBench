@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://makorbench.dev/schemas/trajectory-event.schema.json",
+  "title": "MakorBench Trajectory Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version","event_id","sequence","event_type","source","payload"],
+  "properties": {
+    "schema_version": {"type":"string","const":"0.1"},
+    "event_id": {"type":"string","minLength":1},
+    "sequence": {"type":"integer","minimum":0},
+    "timestamp": {"type":["string","null"],"format":"date-time"},
+    "event_type": {
+      "type":"string",
+      "enum":["message","tool_call","tool_result","file_read","file_write","command","command_result","test_run","experiment","observation","hypothesis_checkpoint","verification","final_artifact","infrastructure_event"]
+    },
+    "source": {"type":"string","enum":["agent","harness","environment","grader","user"]},
+    "payload": {"type":"object"},
+    "parent_event_ids": {"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "metadata": {"type":"object"}
+  }
+}

@@ -1,0 +1,44 @@
+name: Spec validation
+
+on:
+  push:
+    branches:
+      - main
+      - phase-0-recon
+      - phase-1-spec
+      - phase-1-scoring
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run reference scoring tests
+        run: python -m unittest discover -s tests -p "test_*.py"
+
+      - name: Parse JSON schemas
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          files = sorted(Path("schemas").glob("*.json"))
+          if not files:
+              raise SystemExit("No JSON schemas found")
+
+          expected = "https://json-schema.org/draft/2020-12/schema"
+          for path in files:
+              data = json.loads(path.read_text())
+              if data.get("$schema") != expected:
+                  raise SystemExit(f"{path}: unexpected $schema {data.get('$schema')!r}")
+              print(f"ok: {path}")
+          PY

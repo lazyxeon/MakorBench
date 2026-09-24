@@ -4,62 +4,217 @@
   "title": "MakorBench Diagnosis Artifact",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version","symptom_summary","root_cause","reproduction","alternatives","intervention","residual_uncertainty","adjacent_findings"],
+  "required": [
+    "schema_version",
+    "symptom_summary",
+    "root_cause",
+    "reproduction",
+    "alternatives",
+    "intervention",
+    "residual_uncertainty",
+    "adjacent_findings"
+  ],
   "properties": {
-    "schema_version": {"type":"string","const":"0.1"},
-    "symptom_summary": {"type":"string","minLength":1},
+    "schema_version": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "symptom_summary": {
+      "type": "string",
+      "minLength": 1
+    },
     "root_cause": {
-      "type":"object","additionalProperties":false,
-      "required":["mechanism","causal_roles","locations","causal_chain","confidence"],
-      "properties":{
-        "mechanism":{"type":"string","minLength":1},
-        "causal_roles":{
-          "type":"array","minItems":1,
-          "items":{
-            "type":"object","additionalProperties":false,
-            "required":["role","description"],
-            "properties":{
-              "role":{"type":"string","enum":["root_cause","trigger","precondition","contributor","amplifier","manifestation"]},
-              "description":{"type":"string","minLength":1},
-              "location":{"type":["string","null"]}
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mechanism",
+        "causal_roles",
+        "locations",
+        "causal_chain",
+        "confidence"
+      ],
+      "properties": {
+        "mechanism": {
+          "type": "string",
+          "minLength": 1
+        },
+        "causal_roles": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "role",
+              "description"
+            ],
+            "properties": {
+              "role": {
+                "type": "string",
+                "enum": [
+                  "root_cause",
+                  "trigger",
+                  "precondition",
+                  "contributor",
+                  "amplifier",
+                  "manifestation"
+                ]
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              },
+              "location": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "evidence_event_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "uniqueItems": true
+              }
             }
           }
         },
-        "locations":{"type":"array","items":{"type":"string"}},
-        "causal_chain":{"type":"array","minItems":1,"items":{"type":"string","minLength":1}},
-        "confidence":{"type":"number","minimum":0,"maximum":1}
-      }
-    },
-    "reproduction":{
-      "type":"object","additionalProperties":false,
-      "required":["status","procedure","observations"],
-      "properties":{
-        "status":{"type":"string","enum":["reproduced","strongly_evidenced","not_reproduced"]},
-        "procedure":{"type":"array","items":{"type":"string"}},
-        "observations":{"type":"array","items":{"type":"string"}}
-      }
-    },
-    "alternatives":{
-      "type":"array",
-      "items":{
-        "type":"object","additionalProperties":false,
-        "required":["hypothesis","status","evidence"],
-        "properties":{
-          "hypothesis":{"type":"string","minLength":1},
-          "status":{"type":"string","enum":["rejected","weakened","unresolved"]},
-          "evidence":{"type":"array","items":{"type":"string"}}
+        "locations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "causal_chain": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "evidence_event_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true,
+          "description": "Observable trajectory event IDs supporting the material root-cause claims."
         }
       }
     },
-    "intervention":{
-      "type":"object","additionalProperties":false,
-      "required":["summary","expected_causal_effect"],
-      "properties":{
-        "summary":{"type":"string","minLength":1},
-        "expected_causal_effect":{"type":"string","minLength":1}
+    "reproduction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "procedure",
+        "observations"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "reproduced",
+            "strongly_evidenced",
+            "not_reproduced"
+          ]
+        },
+        "procedure": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "evidence_event_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
       }
     },
-    "residual_uncertainty":{"type":"array","items":{"type":"string"}},
-    "adjacent_findings":{"type":"array","items":{"type":"string"}}
+    "alternatives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "hypothesis",
+          "status",
+          "evidence"
+        ],
+        "properties": {
+          "hypothesis": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "rejected",
+              "weakened",
+              "unresolved"
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidence_event_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "intervention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "summary",
+        "expected_causal_effect"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expected_causal_effect": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "residual_uncertainty": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "adjacent_findings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
   }
 }
