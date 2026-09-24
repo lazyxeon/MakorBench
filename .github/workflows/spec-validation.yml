@@ -7,6 +7,7 @@ on:
       - phase-0-recon
       - phase-1-spec
       - phase-1-scoring
+      - phase-2-case-001
   pull_request:
 
 permissions:
@@ -22,7 +23,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run reference scoring tests
+      - name: Install validation dependencies
+        run: python -m pip install -r requirements-ci.txt
+
+      - name: Run reference and contract tests
         run: python -m unittest discover -s tests -p "test_*.py"
 
       - name: Parse JSON schemas
